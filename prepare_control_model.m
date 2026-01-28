@@ -1,24 +1,25 @@
-%% prepare_control_model.m (Final Reviewed Version)
+%% prepare_control_model.m (1Hz Resolution Version)
 % 功能：MIMO 随机振动控制仿真初始化
 % 包含：参考谱定义、逆系统加载、初始控制变量计算、参数设置
+% 修改记录：频率分辨率从5Hz改为1Hz (N_frame: 1024→5120)
 
 clear; clc;
 
 %% 1. 核心仿真参数
 Fs = 5120;                  % 采样频率 (Hz)
-N_frame = 1024;             % 帧长 (Buffer Size)
-AvgNum = 60;                % 谱估计平均次数 (对应论文设置)
-epsilon = 0.5;              % 矩阵幂次收敛因子 (建议0.5)
-T_sim = 200;                % 仿真时间 (s) - 延长以观察收敛
-df = Fs / N_frame;          % 频率分辨率 (5 Hz)
-f = (0 : N_frame/2)' * df;  % 频率向量 [513 x 1]
+N_frame = 5120;             % 帧长 (Buffer Size) - 对应 1Hz 分辨率
+AvgNum = 30;                % 谱估计平均次数 (调整以平衡控制周期)
+epsilon = 0.5;              % 矩阵幂次收敛因子 (统一参数)
+T_sim = 300;                % 仿真时间 (s) - 延长以观察完整收敛
+df = Fs / N_frame;          % 频率分辨率 (1 Hz)
+f = (0 : N_frame/2)' * df;  % 频率向量 [2561 x 1]
 n_freq = length(f);
 
 %% 2. 加载逆系统模型 Z
 if exist('system_model.mat', 'file')
-    load('system_model.mat', 'Z'); 
-    % Z 维度: [513 x 2 x 2] (单位: Force / Acceleration)
-    % 确保 Z 的频率轴与当前设置一致
+    load('system_model.mat', 'Z');
+    % Z 维度: [2561 x 2 x 2] (单位: Force / Acceleration)
+    % 确保 Z 的频率轴与当前设置一致 (1Hz分辨率)
     if size(Z, 1) ~= n_freq
         error('Z矩阵频率点数不匹配！请重新运行 system_model.m');
     end
@@ -33,7 +34,7 @@ end
 
 % A. 幅值谱 S_ref (SI Units)
 g = 9.80665;
-ref_level_g = 0.1; 
+ref_level_g = 0.1;
 ref_level_si = ref_level_g * g^2; % 转换为 (m/s^2)^2/Hz
 
 S_ref_profile = zeros(n_freq, 1);
@@ -70,12 +71,12 @@ for k = 1:n_freq
     if f(k) >= 20 && f(k) <= 2000
         S = S_ref_profile(k);
         gamma = sqrt(Coh_vals(k)); % 相干系数
-        
+
         % 非对角项: S * gamma * e^(j*theta)
         Cross = S * gamma * exp(1j * Phase_val);
-        
+
         R(k, :, :) = [S,       Cross;
-                      conj(Cross), S];
+            conj(Cross), S];
     else
         % 非控制频段保持微小值对角阵
         R(k, :, :) = eye(2) * min_val;
@@ -91,10 +92,10 @@ L_init = complex(zeros(n_freq, 2, 2));
 
 for k = 1:n_freq
     R_k = squeeze(R(k, :, :));
-    
+
     % 正定性保护
     R_k = R_k + eye(2) * (ref_level_si * 1e-10);
-    
+
     try
         % Cholesky 分解 (得到下三角)
         L_init(k, :, :) = chol(R_k, 'lower');

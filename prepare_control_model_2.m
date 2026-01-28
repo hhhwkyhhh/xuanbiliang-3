@@ -1,6 +1,7 @@
-%% prepare_control_model_2.m (验证版本 - 不同参考谱)
+%% prepare_control_model_2.m (验证版本 - 不同参考谱, 1Hz分辨率)
 % 功能：MIMO 随机振动控制仿真初始化
 % 目的：使用不同的参考谱 R 验证矩阵幂次控制算法的有效性
+% 修改记录：频率分辨率从5Hz改为1Hz (N_frame: 1024→5120)
 % 变化：
 %   - 平直段电平: 0.05 g^2/Hz (原为 0.1)
 %   - 控制频段: 50-1500 Hz (原为 20-2000)
@@ -9,19 +10,19 @@
 
 clear; clc;
 
-%% 1. 核心仿真参数 (与原版保持一致)
+%% 1. 核心仿真参数 (与原版保持一致 - 1Hz分辨率)
 Fs = 5120;                  % 采样频率 (Hz)
-N_frame = 1024;             % 帧长 (Buffer Size)
-AvgNum = 60;                % 谱估计平均次数
-epsilon = 0.5;              % 矩阵幂次收敛因子
-T_sim = 200;                % 仿真时间 (s)
-df = Fs / N_frame;          % 频率分辨率 (5 Hz)
-f = (0 : N_frame/2)' * df;  % 频率向量 [513 x 1]
+N_frame = 5120;             % 帧长 (Buffer Size) - 对应 1Hz 分辨率
+AvgNum = 30;                % 谱估计平均次数 (调整以平衡控制周期)
+epsilon = 0.5;              % 矩阵幂次收敛因子 (统一参数)
+T_sim = 300;                % 仿真时间 (s) - 延长以观察完整收敛
+df = Fs / N_frame;          % 频率分辨率 (1 Hz)
+f = (0 : N_frame/2)' * df;  % 频率向量 [2561 x 1]
 n_freq = length(f);
 
 %% 2. 加载逆系统模型 Z
 if exist('system_model.mat', 'file')
-    load('system_model.mat', 'Z'); 
+    load('system_model.mat', 'Z');
     if size(Z, 1) ~= n_freq
         error('Z矩阵频率点数不匹配！请重新运行 system_model.m');
     end
@@ -91,11 +92,11 @@ for k = 1:n_freq
     if f(k) >= 50 && f(k) <= 1500
         S = S_ref_profile(k);
         gamma = sqrt(Coh_fixed);
-        
+
         Cross = S * gamma * exp(1j * Phase_val);
-        
+
         R(k, :, :) = [S,       Cross;
-                      conj(Cross), S];
+            conj(Cross), S];
     else
         % 非控制频段
         R(k, :, :) = eye(2) * min_val;
@@ -108,7 +109,7 @@ L_init = complex(zeros(n_freq, 2, 2));
 for k = 1:n_freq
     R_k = squeeze(R(k, :, :));
     R_k = R_k + eye(2) * (ref_level_si * 1e-10);
-    
+
     try
         L_init(k, :, :) = chol(R_k, 'lower');
     catch
@@ -125,16 +126,16 @@ try
     ref_level_g_old = 0.1;
     ref_level_si_old = ref_level_g_old * g^2;
     S_old = zeros(n_freq, 1);
-    
+
     idx_old_up = (f >= 20) & (f < 100);
     idx_old_flat = (f >= 100) & (f < 1000);
     idx_old_down = (f >= 1000) & (f <= 2000);
-    
+
     S_old(idx_old_up) = ref_level_si_old * (10 .^ (3 * log2(f(idx_old_up)/100) / 10));
     S_old(idx_old_flat) = ref_level_si_old;
     S_old(idx_old_down) = ref_level_si_old * (10 .^ (-3 * log2(f(idx_old_down)/1000) / 10));
     S_old(S_old < min_val) = min_val;
-    
+
     % 转换为 g^2/Hz
     loglog(f, S_old / g^2, 'b--', 'LineWidth', 1.5, 'DisplayName', '原版 (0.1 g²/Hz, 20-2000Hz)');
     hold on;
