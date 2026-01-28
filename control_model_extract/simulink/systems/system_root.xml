@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[29, -1, 1011, 751]</P>
+  <P Name="Location">[719, 283, 2069, 1306]</P>
   <P Name="Open">on</P>
-  <P Name="ZoomFactor">175</P>
+  <P Name="ZoomFactor">150</P>
   <P Name="ReportName">simulink-default.rpt</P>
   <P Name="SIDHighWatermark">35</P>
   <Block BlockType="Buffer" Name="Buffer" SID="3">
     <P Name="Position">[700, 85, 760, 135]</P>
     <P Name="ZOrder">24638</P>
-    <P Name="N">1024</P>
-    <P Name="V">512</P>
+    <P Name="N">5120</P>
+    <P Name="V">2560</P>
     <P Name="OutputFrames">off</P>
   </Block>
   <Block BlockType="Constant" Name="Constant" SID="29">
@@ -131,7 +131,7 @@
     <P Name="BlockMirror">on</P>
     <P Name="NameLocation">top</P>
     <P Name="InitialCondition">L_init</P>
-    <P Name="SampleTime">0.1</P>
+    <P Name="SampleTime">0.5</P>
     <P Name="HasFrameUpgradeWarning">on</P>
   </Block>
   <Block BlockType="ZeroOrderHold" Name="Zero-Order&#xA;Hold" SID="9">

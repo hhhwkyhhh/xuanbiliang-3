@@ -5,6 +5,8 @@
   <P Name="viewLimits">[0 156.75 0 153.75]</P>
   <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
   <P Name="viewObj">17</P>
+  <P Name="visible">1</P>
+  <subviewS/>
   <P Name="ssIdHighWaterMark">15</P>
   <P Name="decomposition">CLUSTER_CHART</P>
   <P Name="type">EML_CHART</P>
@@ -38,7 +40,7 @@
 
     % %% 1. 参数定义
     Fs = 5120;          % 采样频率 (Hz)
-    N = 1024;           % FFT点数 (等于Buffer大小)
+    N = 5120;           % FFT点数 (等于Buffer大小)
     N_half = N/2 + 1;   % 单边谱的谱线数 (513)
     
     % %% 2. 加窗 (Hanning Window)

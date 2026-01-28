@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[640, 293, 1622, 1045]</P>
-  <P Name="Open">on</P>
+  <P Name="Location">[589, 388, 1902, 1140]</P>
+  <P Name="ZoomFactor">200</P>
   <P Name="ReportName">simulink-default.rpt</P>
   <P Name="SIDHighWatermark">20</P>
   <Block BlockType="Reference" Name="Band-Limited&#xA;White Noise" SID="1">
@@ -49,15 +49,15 @@ White Noise</P>
   <Block BlockType="Buffer" Name="Buffer" SID="3">
     <P Name="Position">[825, 376, 855, 404]</P>
     <P Name="ZOrder">24615</P>
-    <P Name="N">1024</P>
-    <P Name="V">512</P>
+    <P Name="N">5120</P>
+    <P Name="V">2560</P>
     <P Name="OutputFrames">off</P>
   </Block>
   <Block BlockType="Buffer" Name="Buffer1" SID="4">
     <P Name="Position">[690, 231, 720, 259]</P>
     <P Name="ZOrder">24623</P>
-    <P Name="N">1024</P>
-    <P Name="V">512</P>
+    <P Name="N">5120</P>
+    <P Name="V">2560</P>
     <P Name="OutputFrames">off</P>
   </Block>
   <Block BlockType="Derivative" Name="Derivative" SID="5">

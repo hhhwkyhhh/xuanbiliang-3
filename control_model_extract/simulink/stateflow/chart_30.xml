@@ -39,16 +39,24 @@
 
     % %% 1. 参数设置
     % 收敛因子 (Convergence Factor)
-    epsilon = 0.7; 
+    epsilon = 0.5; 
     
+    % % 【新增】收敛监控变量
+    % persistent iteration_count convergence_history
+    % if isempty(iteration_count)
+    %     iteration_count = 0;
+    %     convergence_history = [];
+    % end
     % 正定性保护阈值 (Regularization)
     reg_val = 1e-12; 
     
     % %% 2. 逻辑判断
     if isPeriod
+         % iteration_count = iteration_count + 1;
         % === 触发修正 ===
         % 【新增】检查 Syy 是否有效 (非零矩阵)
        Syy_max = max(abs(Syy(:)));
+       
        if Syy_max &lt; 1e-20
         % Syy 无效 (全零或接近零)，跳过本次修正
         L_new = L_old;
@@ -58,6 +66,8 @@
         % 必须显式声明为复数，防止后续计算产生虚部时报错
         L_new = complex(zeros(size(L_old)));
         N_half = size(L_old, 1);
+        % 【新增】收敛误差计算
+        %total_error = 0;
         
         for k = 1:N_half
             % 提取当前频点的矩阵 (2x2)
@@ -97,6 +107,13 @@
             % 使用右除 / 提高精度 (相当于 * inv(Ls))
             Delta = Lr / Ls;
             
+           % 【新增】Delta 条件数检查
+           if rcond(Delta) &lt; 1e-10
+               % Delta 接近奇异，跳过本频点修正
+               L_new(k, :, :) = L_old_k;
+               continue;
+           end
+
             % --- 步骤 D: 矩阵幂次修正 ---
             % Correction = Delta ^ epsilon
             % MATLAB Function 支持矩阵幂运算 &apos;^&apos;
@@ -105,7 +122,13 @@
             % --- 步骤 E: 更新控制变量 ---
             % L_new = Correction * L_old
             L_new(k, :, :) = Correction * L_old_k;
+
+            % 【新增】累加误差
+            %total_error = total_error + norm(Syy_k - R_k, &apos;fro&apos;);
         end
+        % 【新增】记录收敛历史（可选：通过输出端口导出）
+        %avg_error = total_error / N_half;
+        %fprintf(&apos;Iteration %d: Avg Error = %.6e\n&apos;, iteration_count, avg_error);
         
     else
         % === 非触发时刻，保持输出 ===

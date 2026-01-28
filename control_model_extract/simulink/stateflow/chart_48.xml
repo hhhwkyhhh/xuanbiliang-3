@@ -5,8 +5,6 @@
   <P Name="viewLimits">[0 156.75 0 153.75]</P>
   <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
   <P Name="viewObj">48</P>
-  <P Name="visible">1</P>
-  <subviewS/>
   <P Name="ssIdHighWaterMark">8</P>
   <P Name="decomposition">CLUSTER_CHART</P>
   <P Name="type">EML_CHART</P>
@@ -37,11 +35,11 @@
 %   u:     [1x2] 当前时刻的驱动力 (时域)
 
     % %% 1. 参数定义
-    N = 1024;               % FFT 点数
-    Overlap = 512;          % 重叠点数 (50%)
+    N = 5120;               % FFT 点数 (对应 1Hz 分辨率)
+    Overlap = 2560;         % 重叠点数 (50%)
     Fs = 5120;              % 采样率
     df = Fs / N;            % 频率分辨率
-    N_half = N/2 + 1;       % 513
+    N_half = N/2 + 1;       % 2561
     
     % %% 2. 持久变量 (用于连续播放)
     persistent Play_Buffer    % 当前播放缓冲区 [512 x 2]

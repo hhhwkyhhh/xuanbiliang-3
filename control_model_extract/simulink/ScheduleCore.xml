@@ -49,7 +49,7 @@
             <hasBlocks>true</hasBlocks>
             <rateIndex>2</rateIndex>
             <rateSpec type="sltp.mm.core.RateSpec">
-              <period>.1</period>
+              <period>.5</period>
             </rateSpec>
             <sti>2</sti>
           </rates>

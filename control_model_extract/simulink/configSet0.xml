@@ -10,7 +10,7 @@
     <Array PropName="Components" Type="Simulink.ConfigComponent" Dimension="10*1">
       <Object ObjectID="2" ClassName="Simulink.SolverCC">
         <P Name="StartTime" Class="char">0.0</P>
-        <P Name="StopTime" Class="char">300</P>
+        <P Name="StopTime" Class="char">600</P>
         <P Name="AbsTol" Class="char">auto</P>
         <P Name="AutoScaleAbsTol" Class="char">on</P>
         <P Name="FixedStep" Class="char">auto</P>
