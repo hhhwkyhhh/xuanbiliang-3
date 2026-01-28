@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart id="17">
+  <P Name="name">SpectralEstimation</P>
+  <P Name="windowPosition">[422 539.941 189 413]</P>
+  <P Name="viewLimits">[0 156.75 0 153.75]</P>
+  <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
+  <P Name="viewObj">17</P>
+  <P Name="ssIdHighWaterMark">15</P>
+  <P Name="decomposition">CLUSTER_CHART</P>
+  <P Name="type">EML_CHART</P>
+  <P Name="chartFileNumber">2</P>
+  <P Name="disableImplicitCasting">1</P>
+  <eml>
+    <P Name="name">SpectralEstimation</P>
+  </eml>
+  <Children>
+    <state SSID="1">
+      <P Name="labelString">eML_blk_kernel()</P>
+      <P Name="position">[18 64.5 118 66]</P>
+      <P Name="fontSize">12</P>
+      <P Name="superState">SUBCHART</P>
+      <P Name="subviewer">17</P>
+      <P Name="type">FUNC_STATE</P>
+      <P Name="decomposition">CLUSTER_STATE</P>
+      <eml>
+        <P Name="isEML">1</P>
+        <P Name="script">function [Suu, Syu,Syy, f] = SpectralEstimation(u, y)
+% SpectralEstimation 计算MIMO系统的瞬时自功率谱和互功率谱
+% 
+% 输入:
+%   u: 激励力信号 [1024 x 2] (时域)
+%   y: 加速度响应信号 [1024 x 2] (时域)
+%
+% 输出:
+%   Suu: 激励力的自功率谱矩阵 [513 x 2 x 2] (频域)
+%   Syu: 响应与激励的互功率谱矩阵 [513 x 2 x 2] (频域)
+%   f:   频率向量 [513 x 1]
+
+    % %% 1. 参数定义
+    Fs = 5120;          % 采样频率 (Hz)
+    N = 1024;           % FFT点数 (等于Buffer大小)
+    N_half = N/2 + 1;   % 单边谱的谱线数 (513)
+    
+    % %% 2. 加窗 (Hanning Window)
+    % 构造汉宁窗 (1024 x 1)
+    % 使用 coder.const 优化代码生成，因为窗函数是常数
+    w = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / (N-1)));
+    
+    % 计算能量恢复系数 (Energy Correction Factor for PSD)
+    % 对于 PSD 估计，需要除以窗函数平方和
+    W_factor = sum(w.^2); 
+    
+    % 对输入数据加窗 (Element-wise multiplication)
+    % u 和 y 的每一列都会乘以窗函数 w
+    u_win = u .* w;
+    y_win = y .* w;
+    
+    % %% 3. FFT 计算
+    % 计算 FFT (结果为复数)
+    U_fft = fft(u_win);
+    Y_fft = fft(y_win);
+    
+    % 截取单边谱 (1 到 N/2+1)
+    U_half = U_fft(1:N_half, :);
+    Y_half = Y_fft(1:N_half, :);
+    
+    % %% 4. 计算功率谱 (PSD) 和 互功率谱 (CPSD)
+    % PSD 缩放因子:
+    % 2: 因为是单边谱，需要把负频率能量加过来 (DC和Nyquist除外)
+    % 1/(Fs * W_factor): PSD的标准归一化
+    scale_factor = 2 / (Fs * W_factor);
+    
+    % 初始化输出矩阵
+    % 维度说明: [频率点 x 输出通道 x 输入通道]
+    % 这是一个 3D 矩阵，方便后续 system_model.m 提取
+    Suu = complex(zeros(N_half, 2, 2));
+    Syu = complex(zeros(N_half, 2, 2));
+    Syy = complex(zeros(N_half, 2, 2));
+    % 循环计算每个频点的谱矩阵
+    for k = 1:N_half
+        % 提取当前频率 k 的向量 (转置为 2x1 列向量)
+        Uk = U_half(k, :).&apos;; 
+        Yk = Y_half(k, :).&apos;;
+        
+        % 计算外积 (Outer Product) 生成 2x2 矩阵
+        % Suu(k) = Uk * Uk&apos; (共轭转置)
+        % Syu(k) = Yk * Uk&apos;
+        Suu(k, :, :) = (Uk * Uk&apos;) * scale_factor;
+        Syu(k, :, :) = (Yk * Uk&apos;) * scale_factor;
+        % 计算 Syy = Yk * Yk^H
+        Syy(k, :, :) = (Yk * Yk&apos;) * scale_factor; 
+    end
+    
+    % %% 5. 修正 DC (0Hz) 和 Nyquist 频率分量的缩放
+    % 直流分量和奈奎斯特分量不乘 2，所以除回去
+    Suu(1, :, :)     = Suu(1, :, :) / 2;
+    Suu(end, :, :)   = Suu(end, :, :) / 2;
+    Syu(1, :, :)     = Syu(1, :, :) / 2;
+    Syu(end, :, :)   = Syu(end, :, :) / 2;
+    Syy(1, :, :)   = Syy(1, :, :) / 2;
+    Syy(end, :, :) = Syy(end, :, :) / 2;
+    
+    % %% 6. 生成频率向量
+    f = (0:N_half-1)&apos; * (Fs / N);
+    
+end</P>
+      </eml>
+    </state>
+    <data SSID="4" name="u">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="6" name="y">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="9" name="Suu">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="11" name="Syu">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="15" name="Syy">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="10" name="f">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <transition SSID="2">
+      <P Name="labelString">{eML_blk_kernel();}</P>
+      <P Name="labelPosition">[28.125 13.875 102.544 14.964]</P>
+      <P Name="fontSize">12</P>
+      <src>
+        <P Name="intersection">[0 0 1 0 23.5747 14.625 0 0]</P>
+      </src>
+      <dst>
+        <P Name="SSID">3</P>
+        <P Name="intersection">[1 0 -1 0 23.5747 42.5747 0 0]</P>
+      </dst>
+      <P Name="midPoint">[23.5747 24.9468]</P>
+      <P Name="dataLimits">[21.175 25.975 14.625 42.575]</P>
+      <P Name="subviewer">17</P>
+      <P Name="drawStyle">SMART</P>
+      <slide>
+        <P Name="sticky">BOTH_STICK</P>
+      </slide>
+      <P Name="executionOrder">1</P>
+    </transition>
+    <junction SSID="3">
+      <P Name="position">[23.5747 49.5747 7]</P>
+      <P Name="subviewer">17</P>
+      <P Name="type">CONNECTIVE_JUNCTION</P>
+    </junction>
+  </Children>
+</chart>

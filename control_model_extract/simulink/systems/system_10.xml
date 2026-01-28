@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<System>
+  <P Name="Location">[223, 338, 826, 833]</P>
+  <P Name="SIDHighWatermark">50</P>
+  <Block BlockType="Inport" Name="L_old" SID="10::33">
+    <P Name="Position">[20, 101, 40, 119]</P>
+    <P Name="ZOrder">24</P>
+  </Block>
+  <Block BlockType="Inport" Name="Syy" SID="10::1">
+    <P Name="Position">[20, 136, 40, 154]</P>
+    <P Name="ZOrder">-1</P>
+    <P Name="Port">2</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">Syy</P>
+      </Port>
+    </PortProperties>
+  </Block>
+  <Block BlockType="Inport" Name="R" SID="10::49">
+    <P Name="Position">[20, 171, 40, 189]</P>
+    <P Name="ZOrder">33</P>
+    <P Name="Port">3</P>
+  </Block>
+  <Block BlockType="Inport" Name="isPeriod" SID="10::31">
+    <P Name="Position">[20, 206, 40, 224]</P>
+    <P Name="ZOrder">22</P>
+    <P Name="Port">4</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">isPeriod</P>
+      </Port>
+    </PortProperties>
+  </Block>
+  <Block BlockType="Demux" Name=" Demux " SID="10::26">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[270, 230, 320, 270]</P>
+    <P Name="ZOrder">17</P>
+    <P Name="Outputs">1</P>
+  </Block>
+  <Block BlockType="S-Function" Name=" SFunction " SID="10::25">
+    <P Name="Tag">Stateflow S-Function 1</P>
+    <PortCounts in="4" out="2"/>
+    <P Name="Position">[180, 172, 230, 273]</P>
+    <P Name="ZOrder">16</P>
+    <P Name="FunctionName">sf_sfun</P>
+    <P Name="PortCounts">[4 2]</P>
+    <P Name="SFunctionDeploymentMode">off</P>
+    <P Name="EnableBusSupport">off</P>
+    <P Name="SFcnIsStateOwnerBlock">off</P>
+    <PortProperties>
+      <Port Type="out" Index="2">
+        <P Name="Name">L_new</P>
+      </Port>
+    </PortProperties>
+  </Block>
+  <Block BlockType="Terminator" Name=" Terminator " SID="10::27">
+    <P Name="Position">[460, 241, 480, 259]</P>
+    <P Name="ZOrder">18</P>
+  </Block>
+  <Block BlockType="Outport" Name="L_new" SID="10::5">
+    <P Name="Position">[460, 101, 480, 119]</P>
+    <P Name="ZOrder">-5</P>
+  </Block>
+  <Line>
+    <P Name="ZOrder">112</P>
+    <P Name="Src">10::33#out:1</P>
+    <P Name="Dst">10::25#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">113</P>
+    <P Name="Src">10::1#out:1</P>
+    <P Name="Dst">10::25#in:2</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">114</P>
+    <P Name="Src">10::49#out:1</P>
+    <P Name="Dst">10::25#in:3</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">115</P>
+    <P Name="Src">10::31#out:1</P>
+    <P Name="Dst">10::25#in:4</P>
+  </Line>
+  <Line>
+    <P Name="Name">L_new</P>
+    <P Name="ZOrder">116</P>
+    <P Name="Labels">[0, 0]</P>
+    <P Name="Src">10::25#out:2</P>
+    <P Name="Dst">10::5#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">117</P>
+    <P Name="Src">10::26#out:1</P>
+    <P Name="Dst">10::27#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">118</P>
+    <P Name="Src">10::25#out:1</P>
+    <P Name="Dst">10::26#in:1</P>
+  </Line>
+</System>

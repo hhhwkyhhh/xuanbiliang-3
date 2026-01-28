@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<System>
+  <P Name="Location">[223, 338, 826, 833]</P>
+  <P Name="SIDHighWatermark">37</P>
+  <Block BlockType="Inport" Name="u" SID="6::1">
+    <P Name="Position">[20, 101, 40, 119]</P>
+    <P Name="ZOrder">-1</P>
+  </Block>
+  <Block BlockType="Inport" Name="y" SID="6::28">
+    <P Name="Position">[20, 136, 40, 154]</P>
+    <P Name="ZOrder">19</P>
+    <P Name="Port">2</P>
+  </Block>
+  <Block BlockType="Demux" Name=" Demux " SID="6::26">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[270, 280, 320, 320]</P>
+    <P Name="ZOrder">17</P>
+    <P Name="Outputs">1</P>
+  </Block>
+  <Block BlockType="S-Function" Name=" SFunction " SID="6::25">
+    <P Name="Tag">Stateflow S-Function 2</P>
+    <PortCounts in="2" out="5"/>
+    <P Name="Position">[180, 115, 230, 235]</P>
+    <P Name="ZOrder">16</P>
+    <P Name="FunctionName">sf_sfun</P>
+    <P Name="PortCounts">[2 5]</P>
+    <P Name="SFunctionDeploymentMode">off</P>
+    <P Name="EnableBusSupport">off</P>
+    <P Name="SFcnIsStateOwnerBlock">off</P>
+    <PortProperties>
+      <Port Type="out" Index="2">
+        <P Name="Name">Suu</P>
+      </Port>
+      <Port Type="out" Index="3">
+        <P Name="Name">Syu</P>
+      </Port>
+      <Port Type="out" Index="4">
+        <P Name="Name">Syy</P>
+      </Port>
+      <Port Type="out" Index="5">
+        <P Name="Name">f</P>
+      </Port>
+    </PortProperties>
+  </Block>
+  <Block BlockType="Terminator" Name=" Terminator " SID="6::27">
+    <P Name="Position">[460, 291, 480, 309]</P>
+    <P Name="ZOrder">18</P>
+  </Block>
+  <Block BlockType="Outport" Name="Suu" SID="6::31">
+    <P Name="Position">[460, 101, 480, 119]</P>
+    <P Name="ZOrder">20</P>
+  </Block>
+  <Block BlockType="Outport" Name="Syu" SID="6::33">
+    <P Name="Position">[460, 136, 480, 154]</P>
+    <P Name="ZOrder">22</P>
+    <P Name="Port">2</P>
+  </Block>
+  <Block BlockType="Outport" Name="Syy" SID="6::37">
+    <P Name="Position">[460, 171, 480, 189]</P>
+    <P Name="ZOrder">24</P>
+    <P Name="Port">3</P>
+  </Block>
+  <Block BlockType="Outport" Name="f" SID="6::32">
+    <P Name="Position">[460, 206, 480, 224]</P>
+    <P Name="ZOrder">21</P>
+    <P Name="Port">4</P>
+  </Block>
+  <Line>
+    <P Name="ZOrder">39</P>
+    <P Name="Src">6::1#out:1</P>
+    <P Name="Dst">6::25#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">40</P>
+    <P Name="Src">6::28#out:1</P>
+    <P Name="Dst">6::25#in:2</P>
+  </Line>
+  <Line>
+    <P Name="Name">Suu</P>
+    <P Name="ZOrder">41</P>
+    <P Name="Labels">[0, 0]</P>
+    <P Name="Src">6::25#out:2</P>
+    <P Name="Dst">6::31#in:1</P>
+  </Line>
+  <Line>
+    <P Name="Name">Syu</P>
+    <P Name="ZOrder">42</P>
+    <P Name="Labels">[0, 0]</P>
+    <P Name="Src">6::25#out:3</P>
+    <P Name="Dst">6::33#in:1</P>
+  </Line>
+  <Line>
+    <P Name="Name">Syy</P>
+    <P Name="ZOrder">43</P>
+    <P Name="Labels">[0, 0]</P>
+    <P Name="Src">6::25#out:4</P>
+    <P Name="Points">[74, 0; 0, -20]</P>
+    <P Name="Dst">6::37#in:1</P>
+  </Line>
+  <Line>
+    <P Name="Name">f</P>
+    <P Name="ZOrder">44</P>
+    <P Name="Labels">[0, 0]</P>
+    <P Name="Src">6::25#out:5</P>
+    <P Name="Points">[147, 0; 0, -10]</P>
+    <P Name="Dst">6::32#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">45</P>
+    <P Name="Src">6::26#out:1</P>
+    <P Name="Dst">6::27#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">46</P>
+    <P Name="Src">6::25#out:1</P>
+    <P Name="Dst">6::26#in:1</P>
+  </Line>
+</System>

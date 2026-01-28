@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart id="40">
+  <P Name="name">Response_spectrum_calculation</P>
+  <P Name="windowPosition">[422 539.941 189 413]</P>
+  <P Name="viewLimits">[0 156.75 0 153.75]</P>
+  <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
+  <P Name="viewObj">40</P>
+  <P Name="ssIdHighWaterMark">6</P>
+  <P Name="decomposition">CLUSTER_CHART</P>
+  <P Name="type">EML_CHART</P>
+  <P Name="chartFileNumber">2</P>
+  <P Name="disableImplicitCasting">1</P>
+  <eml>
+    <P Name="name">Response_spectrum_calculation</P>
+  </eml>
+  <Children>
+    <state SSID="1">
+      <P Name="labelString">eML_blk_kernel()</P>
+      <P Name="position">[18 64.5 118 66]</P>
+      <P Name="fontSize">12</P>
+      <P Name="superState">SUBCHART</P>
+      <P Name="subviewer">40</P>
+      <P Name="type">FUNC_STATE</P>
+      <P Name="decomposition">CLUSTER_STATE</P>
+      <eml>
+        <P Name="isEML">1</P>
+        <P Name="script">function [Syy, isPeriod] = Response_spectrum_calculation(y)
+% Response_spectrum_calculation
+% 功能：计算加速度响应的自功率谱矩阵，并进行线性平均
+% 输入: y [1024x2] (时域帧)
+% 输出: Syy [513x2x2] (平均后的功率谱), isPeriod (触发标志)
+
+    % %% 1. 参数定义 (必须与 prepare_control_model.m 一致)
+    N = 1024;           % FFT 点数
+    Fs = 5120;          % 采样率
+    AvgNum = 60;        % 平均帧数 (积累多少帧后触发控制)
+    N_half = N/2 + 1;   % 513
+    
+    % %% 2. 定义持久变量 (记忆功能)
+    % counter: 记录当前积攒了多少帧
+    % Sum_Syy: 累加器，存储 60 帧的谱之和
+    % Last_Syy: 用于在非触发时刻保持输出稳定
+    persistent counter Sum_Syy Last_Syy
+    
+    % 初始化 (仿真第0步执行)
+    if isempty(counter)
+        counter = 0;
+        Sum_Syy = complex(zeros(N_half, 2, 2)); 
+        Last_Syy = complex(zeros(N_half, 2, 2)); % 初始输出为0
+    end
+    
+    % %% 3. 瞬时功率谱计算 (Instantaneous PSD)
+    
+    % A. 加窗 (Hanning Window)
+    % 构造窗函数 (列向量)
+    w = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / (N-1)));
+    
+    % 计算能量恢复系数 (Scale Factor)
+    % PSD = |FFT|^2 * 2 / (Fs * sum(w^2))
+    W_factor = sum(w.^2);
+    scale_factor = 2 / (Fs * W_factor);
+    
+    % 对两路信号加窗
+    y_win = y .* w;
+    
+    % B. FFT 计算
+    Y_fft = fft(y_win);
+    Y_half = Y_fft(1:N_half, :); % 取单边谱
+    
+    % C. 计算当前帧的 PSD 矩阵
+    S_curr = complex(zeros(N_half, 2, 2));
+    
+    for k = 1:N_half
+        % 提取当前频点的向量 [2x1]
+        Yk = Y_half(k, :).&apos;;
+        
+        % 计算自谱矩阵: Yk * Yk&apos; (共轭转置)
+        S_curr(k, :, :) = (Yk * Yk&apos;) * scale_factor;
+    end
+    
+    % D. 修正 DC 和 Nyquist 分量 (不乘2)
+    S_curr(1, :, :) = S_curr(1, :, :) / 2;
+    S_curr(end, :, :) = S_curr(end, :, :) / 2;
+    
+    % %% 4. 累加与平均逻辑 (Block Averaging)
+    
+    % 累加当前帧
+    Sum_Syy = Sum_Syy + S_curr;
+    counter = counter + 1;
+    
+    % %% 5. 触发判断
+    if counter &gt;= AvgNum
+        % --- 达到平均次数，触发输出 ---
+        
+        % 1. 计算平均值
+        Syy = Sum_Syy / AvgNum;
+        
+        % 2. 发出触发信号
+        isPeriod = true;
+        
+        % 3. 更新保持值 (用于下一次非触发时刻的输出)
+        Last_Syy = Syy;
+        
+        % 4. 【关键】清空累加器和计数器，准备下一轮
+        Sum_Syy(:) = 0;
+        counter = 0;
+        
+    else
+        % --- 未达到平均次数，保持旧值 ---
+        
+        % 1. 输出上一次计算好的有效谱 (或者是0)
+        Syy = Last_Syy;
+        
+        % 2. 不触发
+        isPeriod = false;
+    end
+
+end</P>
+      </eml>
+    </state>
+    <data SSID="4" name="y">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="5" name="Syy">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="6" name="isPeriod">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <transition SSID="2">
+      <P Name="labelString">{eML_blk_kernel();}</P>
+      <P Name="labelPosition">[28.125 13.875 102.544 14.964]</P>
+      <P Name="fontSize">12</P>
+      <src>
+        <P Name="intersection">[0 0 1 0 23.5747 14.625 0 0]</P>
+      </src>
+      <dst>
+        <P Name="SSID">3</P>
+        <P Name="intersection">[1 0 -1 0 23.5747 42.5747 0 0]</P>
+      </dst>
+      <P Name="midPoint">[23.5747 24.9468]</P>
+      <P Name="dataLimits">[21.175 25.975 14.625 42.575]</P>
+      <P Name="subviewer">40</P>
+      <P Name="drawStyle">SMART</P>
+      <slide>
+        <P Name="sticky">BOTH_STICK</P>
+      </slide>
+      <P Name="executionOrder">1</P>
+    </transition>
+    <junction SSID="3">
+      <P Name="position">[23.5747 49.5747 7]</P>
+      <P Name="subviewer">40</P>
+      <P Name="type">CONNECTIVE_JUNCTION</P>
+    </junction>
+  </Children>
+</chart>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart id="30">
+  <P Name="name">Controller</P>
+  <P Name="windowPosition">[422 539.941 189 413]</P>
+  <P Name="viewLimits">[0 156.75 0 153.75]</P>
+  <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
+  <P Name="viewObj">30</P>
+  <P Name="visible">1</P>
+  <subviewS/>
+  <P Name="ssIdHighWaterMark">28</P>
+  <P Name="decomposition">CLUSTER_CHART</P>
+  <P Name="type">EML_CHART</P>
+  <P Name="chartFileNumber">1</P>
+  <P Name="disableImplicitCasting">1</P>
+  <eml>
+    <P Name="name">Controller</P>
+  </eml>
+  <Children>
+    <state SSID="1">
+      <P Name="labelString">eML_blk_kernel()</P>
+      <P Name="position">[18 64.5 118 66]</P>
+      <P Name="fontSize">12</P>
+      <P Name="superState">SUBCHART</P>
+      <P Name="subviewer">30</P>
+      <P Name="type">FUNC_STATE</P>
+      <P Name="decomposition">CLUSTER_STATE</P>
+      <eml>
+        <P Name="isEML">1</P>
+        <P Name="script">function L_new = Controller(L_old, Syy, R, isPeriod)
+% Controller
+% 功能：基于矩阵幂次算法更新控制变量
+% 输入：
+%   L_old:    [513x2x2] 上一时刻的控制变量
+%   Syy:      [513x2x2] 平均响应谱 (Response Spectrum)
+%   R:        [513x2x2] 参考谱 (Reference Spectrum)
+%   isPeriod: [logical] 触发信号
+% 输出：
+%   L_new:    [513x2x2] 更新后的控制变量
+
+    % %% 1. 参数设置
+    % 收敛因子 (Convergence Factor)
+    epsilon = 0.7; 
+    
+    % 正定性保护阈值 (Regularization)
+    reg_val = 1e-12; 
+    
+    % %% 2. 逻辑判断
+    if isPeriod
+        % === 触发修正 ===
+        % 【新增】检查 Syy 是否有效 (非零矩阵)
+       Syy_max = max(abs(Syy(:)));
+       if Syy_max &lt; 1e-20
+        % Syy 无效 (全零或接近零)，跳过本次修正
+        L_new = L_old;
+        return;  % 提前返回
+    end
+        % 初始化输出矩阵
+        % 必须显式声明为复数，防止后续计算产生虚部时报错
+        L_new = complex(zeros(size(L_old)));
+        N_half = size(L_old, 1);
+        
+        for k = 1:N_half
+            % 提取当前频点的矩阵 (2x2)
+            R_k = squeeze(R(k, :, :));
+            Syy_k = squeeze(Syy(k, :, :));
+            L_old_k = squeeze(L_old(k, :, :));
+            
+            % --- 步骤 A: 响应谱 Syy 分解 (Ls) ---
+            % 保护机制：确保 Syy 正定，替代 try-catch
+            % 1. 强制对称
+            Syy_k = (Syy_k + Syy_k&apos;) / 2;
+            % 2. 特征值分解
+            [V, D] = eig(Syy_k);
+            d_diag = diag(D);
+            % 3. 如果特征值太小或为负，强制拉高
+            if any(d_diag &lt;= reg_val)
+                d_diag = max(d_diag, reg_val);
+                Syy_k = V * diag(d_diag) * V&apos;;
+            end
+            
+            % Cholesky 分解: Syy = Ls * Ls&apos;
+            Ls = chol(Syy_k, &apos;lower&apos;);
+            
+            % --- 步骤 B: 参考谱 R 分解 (Lr) ---
+            % 同样进行保护，尽管 R 通常是正定的
+            R_k = (R_k + R_k&apos;) / 2;
+            [Vr, Dr] = eig(R_k);
+            dr_diag = diag(Dr);
+            if any(dr_diag &lt;= reg_val)
+                 dr_diag = max(dr_diag, reg_val);
+                 R_k = Vr * diag(dr_diag) * Vr&apos;;
+            end
+            Lr = chol(R_k, &apos;lower&apos;);
+            
+            % --- 步骤 C: 计算误差矩阵 Delta ---
+            % Delta = Lr * inv(Ls)
+            % 使用右除 / 提高精度 (相当于 * inv(Ls))
+            Delta = Lr / Ls;
+            
+            % --- 步骤 D: 矩阵幂次修正 ---
+            % Correction = Delta ^ epsilon
+            % MATLAB Function 支持矩阵幂运算 &apos;^&apos;
+            Correction = Delta ^ epsilon;
+            
+            % --- 步骤 E: 更新控制变量 ---
+            % L_new = Correction * L_old
+            L_new(k, :, :) = Correction * L_old_k;
+        end
+        
+    else
+        % === 非触发时刻，保持输出 ===
+        L_new = L_old;
+    end
+    
+end</P>
+      </eml>
+    </state>
+    <data SSID="11" name="L_old">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="4" name="Syy">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="27" name="R">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="9" name="isPeriod">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="5" name="L_new">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <transition SSID="2">
+      <P Name="labelString">{eML_blk_kernel();}</P>
+      <P Name="labelPosition">[28.125 13.875 102.544 14.964]</P>
+      <P Name="fontSize">12</P>
+      <src>
+        <P Name="intersection">[0 0 1 0 23.5747 14.625 0 0]</P>
+      </src>
+      <dst>
+        <P Name="SSID">3</P>
+        <P Name="intersection">[1 0 -1 0 23.5747 42.5747 0 0]</P>
+      </dst>
+      <P Name="midPoint">[23.5747 24.9468]</P>
+      <P Name="dataLimits">[21.175 25.975 14.625 42.575]</P>
+      <P Name="subviewer">30</P>
+      <P Name="drawStyle">SMART</P>
+      <slide>
+        <P Name="sticky">BOTH_STICK</P>
+      </slide>
+      <P Name="executionOrder">1</P>
+    </transition>
+    <junction SSID="3">
+      <P Name="position">[23.5747 49.5747 7]</P>
+      <P Name="subviewer">30</P>
+      <P Name="type">CONNECTIVE_JUNCTION</P>
+    </junction>
+  </Children>
+</chart>

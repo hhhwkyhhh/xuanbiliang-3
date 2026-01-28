@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<chart id="48">
+  <P Name="name">Signal_Generator</P>
+  <P Name="windowPosition">[422 539.941 189 413]</P>
+  <P Name="viewLimits">[0 156.75 0 153.75]</P>
+  <P Name="screen">[1 1 3600 1200 1.180555555555556]</P>
+  <P Name="viewObj">48</P>
+  <P Name="visible">1</P>
+  <subviewS/>
+  <P Name="ssIdHighWaterMark">8</P>
+  <P Name="decomposition">CLUSTER_CHART</P>
+  <P Name="type">EML_CHART</P>
+  <P Name="chartFileNumber">3</P>
+  <P Name="disableImplicitCasting">1</P>
+  <eml>
+    <P Name="name">Signal_Generator</P>
+  </eml>
+  <Children>
+    <state SSID="1">
+      <P Name="labelString">eML_blk_kernel()</P>
+      <P Name="position">[18 64.5 118 66]</P>
+      <P Name="fontSize">12</P>
+      <P Name="superState">SUBCHART</P>
+      <P Name="subviewer">48</P>
+      <P Name="type">FUNC_STATE</P>
+      <P Name="decomposition">CLUSTER_STATE</P>
+      <eml>
+        <P Name="isEML">1</P>
+        <P Name="script">function u = Signal_Generator(L_old, Z)
+% Signal_Generator
+% 功能：基于矩阵幂次控制变量 L_old，生成 MIMO 时域驱动力信号
+% 方法：频域高斯随机化 + IFFT + 重叠相加 (Overlap-Add)
+% 输入：
+%   L_old: [513x2x2] 加速度域控制因子 (复数下三角)
+%   Z:     [513x2x2] 逆系统矩阵 (Force/Acceleration)
+% 输出：
+%   u:     [1x2] 当前时刻的驱动力 (时域)
+
+    % %% 1. 参数定义
+    N = 1024;               % FFT 点数
+    Overlap = 512;          % 重叠点数 (50%)
+    Fs = 5120;              % 采样率
+    df = Fs / N;            % 频率分辨率
+    N_half = N/2 + 1;       % 513
+    
+    % %% 2. 持久变量 (用于连续播放)
+    persistent Play_Buffer    % 当前播放缓冲区 [512 x 2]
+    persistent Overlap_Buffer % 重叠缓冲区 [512 x 2] (存储上一帧的尾部)
+    persistent play_idx       % 播放指针 (1 ~ 512)
+    persistent h_win          % 汉宁窗
+    
+    % 初始化
+    if isempty(play_idx)
+        play_idx = 1;
+        Play_Buffer = zeros(Overlap, 2);
+        Overlap_Buffer = zeros(Overlap, 2);
+        
+        % 预计算汉宁窗 (1024x1)
+        % 注意：合成时通常使用 &quot;Periodic&quot; 窗或标准窗，这里用标准汉宁窗
+        h_win = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / (N-1)));
+    end
+    
+    % %% 3. 检查缓冲区状态
+    % 如果当前缓冲区播放完毕 (play_idx &gt; 512)，则生成新的一帧
+    if play_idx &gt; Overlap
+        
+        % === A. 频域合成 ===
+        % 初始化全频段谱 (双边谱) [1024 x 2]
+        U_full = complex(zeros(N, 2));
+        
+        % 缩放因子：将 PSD (unit^2/Hz) 转换为 FFT 幅值
+        % 理论推导：S = |U|^2 * dt / N  =&gt; |U| ~ sqrt(S * N * Fs) ... 
+        % 工程近似：sqrt(df) 用于积分，N 用于 IFFT 增益
+        % 这里使用简化的能量匹配系数，具体数值可能需要根据 Response_spectrum 模块的 scale_factor 微调
+        % 这里的 sqrt(df/2) 是将单边 PSD 密度转换为单边 rms 幅值 (除以2是因为双边)
+        %Gen_Gain = sqrt(df/2) * N; 
+
+        % 【修复】与 Response_spectrum_calculation 的 scale_factor 完全对称
+% 分析模块: scale_factor = 2 / (Fs * W_factor)
+% 生成模块: Gen_Gain 需要满足 |IFFT(U)|^2 的期望 = 目标PSD * df
+%
+% 推导:
+%   分析时: S = |Y|^2 * 2 / (Fs * W_factor)
+%   生成时: 我们要 E[|u(t)|^2] = S_target * df
+%          而 u(t) = IFFT(U), 所以 E[sum(|u|^2)] = E[|U|^2] / N
+%          因此 |U_k|^2 = S_target * Fs * W_factor / 2 * N / N = S_target * Fs * W_factor / 2
+%          所以 |U_k| = sqrt(S_target) * sqrt(Fs * W_factor / 2)
+%
+% 由于 S_target = |L|^2 (L 已包含振幅信息)，所以:
+W_factor = sum(h_win.^2);  % 汉宁窗能量因子 ≈ 512 for N=1024
+Gen_Gain = sqrt(Fs * W_factor / 2);  % ≈ sqrt(5120 * 512 / 2) ≈ 1144.55
+        
+        % 循环计算单边谱 (DC ~ Nyquist)
+        for k = 1:N_half
+            
+            % 1. 提取矩阵
+            L_k = squeeze(L_old(k, :, :)); % [2x2]
+            Z_k = squeeze(Z(k, :, :));     % [2x2]
+            
+            % 2. 计算驱动因子 D = Z * L (Force Domain)
+            D_k = Z_k * L_k;               % [2x2]
+            
+            % 3. 生成独立复高斯白噪声向量 w ~ CN(0, I)
+            % 实部虚部各为 N(0, 0.5)，保证模的期望为 1
+            w = (randn(2, 1) + 1j * randn(2, 1)) / sqrt(2);
+            
+            % 4. 合成驱动谱 U = D * w
+            U_k = D_k * w;                 % [2x1]
+            
+            % 5. 存入全频谱 (正频率)
+            U_full(k, :) = U_k.&apos; * Gen_Gain;
+        end
+        
+        % === B. 构造 Hermitian 对称 (保证时域为实数) ===
+        % DC(1) 和 Nyquist(513) 虚部置 0
+        U_full(1, :) = real(U_full(1, :));
+        U_full(N_half, :) = real(U_full(N_half, :));
+        
+        % 填充负频率 (514 ~ 1024) = conj(flip(2 ~ 512))
+        U_full(N_half+1 : N, :) = conj(flipud(U_full(2 : N_half-1, :)));
+        
+        % === C. IFFT 与 加窗 ===
+        u_time_block = ifft(U_full, N, 1, &apos;symmetric&apos;); % [1024 x 2] (实数)
+        
+        % 加窗 (Element-wise)
+        u_win = u_time_block .* h_win;
+        
+        % === D. 重叠相加 (Overlap-Add) ===
+        % 前 512 点：与上一帧的尾部叠加 -&gt; 放入播放缓冲区
+        Play_Buffer = u_win(1:Overlap, :) + Overlap_Buffer;
+        
+        % 后 512 点：存入重叠缓冲区，等待下一帧
+        Overlap_Buffer = u_win(Overlap+1:N, :);
+        
+        % 重置播放指针
+        play_idx = 1;
+    end
+    
+    % %% 4. 输出当前采样点
+      u = Play_Buffer(play_idx, :).&apos;; 
+    
+    % 更新指针
+    play_idx = play_idx + 1;
+
+end</P>
+      </eml>
+    </state>
+    <data SSID="4" name="L_old">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="5" name="u">
+      <P Name="scope">OUTPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_NO</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <data SSID="8" name="Z">
+      <P Name="scope">INPUT_DATA</P>
+      <props>
+        <array>
+          <P Name="size">-1</P>
+        </array>
+        <type>
+          <P Name="method">SF_INHERITED_TYPE</P>
+          <P Name="primitive">SF_DOUBLE_TYPE</P>
+          <P Name="isSigned">1</P>
+          <P Name="wordLength">16</P>
+        </type>
+        <P Name="complexity">SF_COMPLEX_INHERITED</P>
+        <P Name="frame">SF_FRAME_INHERITED</P>
+        <unit>
+          <P Name="name">inherit</P>
+        </unit>
+      </props>
+      <P Name="dataType">Inherit: Same as Simulink</P>
+    </data>
+    <transition SSID="2">
+      <P Name="labelString">{eML_blk_kernel();}</P>
+      <P Name="labelPosition">[28.125 13.875 102.544 14.964]</P>
+      <P Name="fontSize">12</P>
+      <src>
+        <P Name="intersection">[0 0 1 0 23.5747 14.625 0 0]</P>
+      </src>
+      <dst>
+        <P Name="SSID">3</P>
+        <P Name="intersection">[1 0 -1 0 23.5747 42.5747 0 0]</P>
+      </dst>
+      <P Name="midPoint">[23.5747 24.9468]</P>
+      <P Name="dataLimits">[21.175 25.975 14.625 42.575]</P>
+      <P Name="subviewer">48</P>
+      <P Name="drawStyle">SMART</P>
+      <slide>
+        <P Name="sticky">BOTH_STICK</P>
+      </slide>
+      <P Name="executionOrder">1</P>
+    </transition>
+    <junction SSID="3">
+      <P Name="position">[23.5747 49.5747 7]</P>
+      <P Name="subviewer">48</P>
+      <P Name="type">CONNECTIVE_JUNCTION</P>
+    </junction>
+  </Children>
+</chart>

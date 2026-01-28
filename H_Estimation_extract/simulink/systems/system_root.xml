@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<System>
+  <P Name="Location">[640, 293, 1622, 1045]</P>
+  <P Name="Open">on</P>
+  <P Name="ReportName">simulink-default.rpt</P>
+  <P Name="SIDHighWatermark">20</P>
+  <Block BlockType="Reference" Name="Band-Limited&#xA;White Noise" SID="1">
+    <PortCounts out="1"/>
+    <P Name="Position">[235, 340, 265, 370]</P>
+    <P Name="ZOrder">24616</P>
+    <P Name="LibraryVersion">7.11</P>
+    <P Name="SourceBlock">simulink/Sources/Band-Limited
+White Noise</P>
+    <P Name="SourceType">Band-Limited White Noise.</P>
+    <InstanceData>
+      <P Name="RTWMemSecFuncInitTerm">Inherit from model</P>
+      <P Name="RTWMemSecFuncExecute">Inherit from model</P>
+      <P Name="RTWMemSecDataConstants">Inherit from model</P>
+      <P Name="RTWMemSecDataInternal">Inherit from model</P>
+      <P Name="RTWMemSecDataParameters">Inherit from model</P>
+      <P Name="ContentPreviewEnabled">on</P>
+      <P Name="Cov">500</P>
+      <P Name="Ts">1/5120</P>
+      <P Name="seed">[456]</P>
+      <P Name="VectorParams1D">on</P>
+    </InstanceData>
+  </Block>
+  <Block BlockType="Reference" Name="Band-Limited&#xA;White Noise1" SID="2">
+    <PortCounts out="1"/>
+    <P Name="Position">[235, 410, 265, 440]</P>
+    <P Name="ZOrder">24628</P>
+    <P Name="LibraryVersion">7.11</P>
+    <P Name="SourceBlock">simulink/Sources/Band-Limited
+White Noise</P>
+    <P Name="SourceType">Band-Limited White Noise.</P>
+    <InstanceData>
+      <P Name="RTWMemSecFuncInitTerm">Inherit from model</P>
+      <P Name="RTWMemSecFuncExecute">Inherit from model</P>
+      <P Name="RTWMemSecDataConstants">Inherit from model</P>
+      <P Name="RTWMemSecDataInternal">Inherit from model</P>
+      <P Name="RTWMemSecDataParameters">Inherit from model</P>
+      <P Name="ContentPreviewEnabled">on</P>
+      <P Name="Cov">500</P>
+      <P Name="Ts">1/5120</P>
+      <P Name="seed">[123]</P>
+      <P Name="VectorParams1D">on</P>
+    </InstanceData>
+  </Block>
+  <Block BlockType="Buffer" Name="Buffer" SID="3">
+    <P Name="Position">[825, 376, 855, 404]</P>
+    <P Name="ZOrder">24615</P>
+    <P Name="N">1024</P>
+    <P Name="V">512</P>
+    <P Name="OutputFrames">off</P>
+  </Block>
+  <Block BlockType="Buffer" Name="Buffer1" SID="4">
+    <P Name="Position">[690, 231, 720, 259]</P>
+    <P Name="ZOrder">24623</P>
+    <P Name="N">1024</P>
+    <P Name="V">512</P>
+    <P Name="OutputFrames">off</P>
+  </Block>
+  <Block BlockType="Derivative" Name="Derivative" SID="5">
+    <P Name="Position">[595, 375, 625, 405]</P>
+    <P Name="ZOrder">24619</P>
+  </Block>
+  <Block BlockType="Mux" Name="Mux" SID="7">
+    <PortCounts in="2" out="1"/>
+    <P Name="Position">[320, 371, 325, 409]</P>
+    <P Name="ZOrder">24629</P>
+    <P Name="Inputs">2</P>
+    <P Name="DisplayOption">bar</P>
+  </Block>
+  <Block BlockType="Reshape" Name="Reshape" SID="8">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[495, 378, 545, 402]</P>
+    <P Name="ZOrder">24618</P>
+    <P Name="OutputDimensionality">Customize</P>
+    <P Name="OutputDimensions">[2,1]</P>
+  </Block>
+  <Block BlockType="Reshape" Name="Reshape1" SID="9">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[410, 233, 460, 257]</P>
+    <P Name="ZOrder">24621</P>
+    <P Name="OutputDimensionality">Customize</P>
+    <P Name="OutputDimensions">[2,1]</P>
+  </Block>
+  <Block BlockType="SubSystem" Name="SpectralEstimation" SID="6">
+    <PortCounts in="2" out="4"/>
+    <P Name="Position">[780, 219, 950, 326]</P>
+    <P Name="ZOrder">24620</P>
+    <P Name="LibrarySourceProduct" Ref="bdmxdata:LibrarySourceProduct_6"/>
+    <P Name="ErrorFcn">Stateflow.Translate.translate</P>
+    <P Name="PermitHierarchicalResolution">ExplicitOnly</P>
+    <P Name="TreatAsAtomicUnit">on</P>
+    <P Name="SFBlockType">MATLAB Function</P>
+    <P Name="ContentPreviewEnabled">on</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">Suu</P>
+      </Port>
+      <Port Type="out" Index="2">
+        <P Name="PropagatedSignals">Syu</P>
+      </Port>
+      <Port Type="out" Index="3">
+        <P Name="PropagatedSignals">Syy</P>
+      </Port>
+      <Port Type="out" Index="4">
+        <P Name="PropagatedSignals">f</P>
+      </Port>
+    </PortProperties>
+    <System Ref="system_6"/>
+  </Block>
+  <Block BlockType="StateSpace" Name="State-Space" SID="10">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[405, 373, 465, 407]</P>
+    <P Name="ZOrder">24617</P>
+    <P Name="A">A</P>
+    <P Name="B">B</P>
+    <P Name="C">C</P>
+    <P Name="D">D</P>
+    <P Name="InitialCondition">0</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace" SID="11">
+    <PortCounts in="1"/>
+    <P Name="Position">[1075, 135, 1165, 165]</P>
+    <P Name="ZOrder">24625</P>
+    <P Name="VariableName">Suu_ts</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="Save2DSignal">2-D array (concatenate along first dimension)</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace1" SID="12">
+    <PortCounts in="1"/>
+    <P Name="Position">[1075, 375, 1165, 405]</P>
+    <P Name="ZOrder">24627</P>
+    <P Name="VariableName">f_ts</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="Save2DSignal">2-D array (concatenate along first dimension)</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace2" SID="13">
+    <PortCounts in="1"/>
+    <P Name="Position">[1085, 220, 1175, 250]</P>
+    <P Name="ZOrder">24626</P>
+    <P Name="VariableName">Syu_ts</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="Save2DSignal">2-D array (concatenate along first dimension)</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace3" SID="19">
+    <PortCounts in="1"/>
+    <P Name="Position">[1085, 295, 1175, 325]</P>
+    <P Name="ZOrder">24633</P>
+    <P Name="VariableName">Syy_ts</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="Save2DSignal">2-D array (concatenate along first dimension)</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="Math" Name="Transpose" SID="14">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[615, 229, 645, 261]</P>
+    <P Name="ZOrder">24630</P>
+    <P Name="Operator">transpose</P>
+  </Block>
+  <Block BlockType="Math" Name="Transpose1" SID="15">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[745, 374, 775, 406]</P>
+    <P Name="ZOrder">24631</P>
+    <P Name="Operator">transpose</P>
+  </Block>
+  <Block BlockType="ZeroOrderHold" Name="Zero-Order&#xA;Hold" SID="16">
+    <P Name="Position">[520, 230, 555, 260]</P>
+    <P Name="ZOrder">24622</P>
+    <P Name="SampleTime">1/5120</P>
+  </Block>
+  <Block BlockType="ZeroOrderHold" Name="Zero-Order&#xA;Hold1" SID="17">
+    <P Name="Position">[670, 375, 705, 405]</P>
+    <P Name="ZOrder">24624</P>
+    <P Name="SampleTime">1/5120</P>
+  </Block>
+  <Line>
+    <P Name="ZOrder">3</P>
+    <P Name="Src">7#out:1</P>
+    <P Name="Points">[38, 0]</P>
+    <Branch>
+      <P Name="ZOrder">2</P>
+      <P Name="Points">[0, -145]</P>
+      <P Name="Dst">9#in:1</P>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">1</P>
+      <P Name="Dst">10#in:1</P>
+    </Branch>
+  </Line>
+  <Line>
+    <P Name="ZOrder">4</P>
+    <P Name="Src">14#out:1</P>
+    <P Name="Dst">4#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">5</P>
+    <P Name="Src">17#out:1</P>
+    <P Name="Dst">15#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">6</P>
+    <P Name="Src">9#out:1</P>
+    <P Name="Dst">16#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">7</P>
+    <P Name="Src">3#out:1</P>
+    <P Name="Points">[29, 0; 0, -28; -133, 0; 0, -62]</P>
+    <P Name="Dst">6#in:2</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">8</P>
+    <P Name="Src">10#out:1</P>
+    <P Name="Dst">8#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">23</P>
+    <P Name="Src">8#out:1</P>
+    <P Name="Dst">5#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">10</P>
+    <P Name="Src">6#out:4</P>
+    <P Name="Points">[34, 0; 0, 80]</P>
+    <P Name="Dst">12#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">11</P>
+    <P Name="Src">16#out:1</P>
+    <P Name="Dst">14#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">12</P>
+    <P Name="Src">1#out:1</P>
+    <P Name="Points">[28, 0; 0, 25]</P>
+    <P Name="Dst">7#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">13</P>
+    <P Name="Src">2#out:1</P>
+    <P Name="Points">[21, 0; 0, -25]</P>
+    <P Name="Dst">7#in:2</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">14</P>
+    <P Name="Src">15#out:1</P>
+    <P Name="Dst">3#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">15</P>
+    <P Name="Src">6#out:2</P>
+    <P Name="Points">[67, 0; 0, -25]</P>
+    <P Name="Dst">13#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">16</P>
+    <P Name="Src">4#out:1</P>
+    <P Name="Dst">6#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">17</P>
+    <P Name="Src">6#out:1</P>
+    <P Name="Points">[40, 0; 0, -85]</P>
+    <P Name="Dst">11#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">24</P>
+    <P Name="Src">5#out:1</P>
+    <P Name="Dst">17#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">19</P>
+    <P Name="Src">6#out:3</P>
+    <P Name="Points">[82, 0; 0, 25]</P>
+    <P Name="Dst">19#in:1</P>
+  </Line>
+</System>

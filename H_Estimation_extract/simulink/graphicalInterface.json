@@ -1,0 +1,21 @@
+{
+    "GraphicalInterface":{
+        "ExternalFileReferences":[
+            {
+                "Path":"$bdroot\/Band-Limited White Noise",
+                "Reference":"simulink\/Sources\/Band-Limited\nWhite Noise",
+                "SID":"1",
+                "Type":"LIBRARY_BLOCK"
+            },
+            {
+                "Path":"$bdroot\/Band-Limited White Noise1",
+                "Reference":"simulink\/Sources\/Band-Limited\nWhite Noise",
+                "SID":"2",
+                "Type":"LIBRARY_BLOCK"
+            }
+        ],
+        "PreCompExecutionDomainType":"Unset",
+        "SimulinkSubDomainType":"Simulink",
+        "SolverName":"VariableStepAuto"
+    }
+}

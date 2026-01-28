@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<System>
+  <P Name="Location">[29, -1, 1011, 751]</P>
+  <P Name="Open">on</P>
+  <P Name="ZoomFactor">175</P>
+  <P Name="ReportName">simulink-default.rpt</P>
+  <P Name="SIDHighWatermark">35</P>
+  <Block BlockType="Buffer" Name="Buffer" SID="3">
+    <P Name="Position">[700, 85, 760, 135]</P>
+    <P Name="ZOrder">24638</P>
+    <P Name="N">1024</P>
+    <P Name="V">512</P>
+    <P Name="OutputFrames">off</P>
+  </Block>
+  <Block BlockType="Constant" Name="Constant" SID="29">
+    <P Name="Position">[-260, 115, -230, 145]</P>
+    <P Name="ZOrder">24652</P>
+    <P Name="Value">Z</P>
+  </Block>
+  <Block BlockType="Constant" Name="Constant1" SID="30">
+    <P Name="Position">[480, 356, 535, 404]</P>
+    <P Name="ZOrder">24653</P>
+    <P Name="Value">R</P>
+  </Block>
+  <Block BlockType="SubSystem" Name="Controller" SID="10">
+    <PortCounts in="4" out="1"/>
+    <P Name="Position">[190, 216, 410, 344]</P>
+    <P Name="ZOrder">24641</P>
+    <P Name="BlockMirror">on</P>
+    <P Name="NameLocation">top</P>
+    <P Name="LibrarySourceProduct" Ref="bdmxdata:LibrarySourceProduct_10"/>
+    <P Name="ErrorFcn">Stateflow.Translate.translate</P>
+    <P Name="PermitHierarchicalResolution">ExplicitOnly</P>
+    <P Name="TreatAsAtomicUnit">on</P>
+    <P Name="SFBlockType">MATLAB Function</P>
+    <P Name="ContentPreviewEnabled">on</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">L_new</P>
+      </Port>
+    </PortProperties>
+    <System Ref="system_10"/>
+  </Block>
+  <Block BlockType="Derivative" Name="Derivative" SID="4">
+    <P Name="Position">[355, 90, 400, 130]</P>
+    <P Name="ZOrder">24636</P>
+  </Block>
+  <Block BlockType="RateTransition" Name="Rate Transition" SID="33">
+    <P Name="Position">[-176, 185, -134, 225]</P>
+    <P Name="ZOrder">24656</P>
+    <P Name="BlockRotation">270</P>
+    <P Name="NameLocation">right</P>
+    <P Name="InitialCondition">L_init</P>
+    <P Name="OutPortSampleTime">1/5120</P>
+  </Block>
+  <Block BlockType="Reshape" Name="Reshape" SID="6">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[235, 86, 305, 134]</P>
+    <P Name="ZOrder">24635</P>
+    <P Name="OutputDimensionality">Customize</P>
+    <P Name="OutputDimensions">[2,1]</P>
+  </Block>
+  <Block BlockType="SubSystem" Name="Response_spectrum_calculation" SID="5">
+    <PortCounts in="1" out="2"/>
+    <P Name="Position">[595, 236, 865, 354]</P>
+    <P Name="ZOrder">24639</P>
+    <P Name="BlockMirror">on</P>
+    <P Name="NameLocation">top</P>
+    <P Name="LibrarySourceProduct" Ref="bdmxdata:LibrarySourceProduct_5"/>
+    <P Name="ErrorFcn">Stateflow.Translate.translate</P>
+    <P Name="PermitHierarchicalResolution">ExplicitOnly</P>
+    <P Name="TreatAsAtomicUnit">on</P>
+    <P Name="SFBlockType">MATLAB Function</P>
+    <P Name="ContentPreviewEnabled">on</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">Syy</P>
+      </Port>
+      <Port Type="out" Index="2">
+        <P Name="PropagatedSignals">isPeriod</P>
+      </Port>
+    </PortProperties>
+    <System Ref="system_5"/>
+  </Block>
+  <Block BlockType="SubSystem" Name="Signal_Generator" SID="15">
+    <PortCounts in="2" out="1"/>
+    <P Name="Position">[-115, 60, 30, 155]</P>
+    <P Name="ZOrder">24646</P>
+    <P Name="LibrarySourceProduct" Ref="bdmxdata:LibrarySourceProduct_15"/>
+    <P Name="ErrorFcn">Stateflow.Translate.translate</P>
+    <P Name="PermitHierarchicalResolution">ExplicitOnly</P>
+    <P Name="TreatAsAtomicUnit">on</P>
+    <P Name="SFBlockType">MATLAB Function</P>
+    <P Name="ContentPreviewEnabled">on</P>
+    <PortProperties>
+      <Port Type="out" Index="1">
+        <P Name="PropagatedSignals">u</P>
+      </Port>
+    </PortProperties>
+    <System Ref="system_15"/>
+  </Block>
+  <Block BlockType="StateSpace" Name="State-Space" SID="7">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[110, 88, 170, 132]</P>
+    <P Name="ZOrder">24634</P>
+    <P Name="A">A</P>
+    <P Name="B">B</P>
+    <P Name="C">C</P>
+    <P Name="D">D</P>
+    <P Name="InitialCondition">0</P>
+  </Block>
+  <Block BlockType="ToWorkspace" Name="To Workspace" SID="35">
+    <PortCounts in="1"/>
+    <P Name="Position">[490, 465, 580, 495]</P>
+    <P Name="ZOrder">24658</P>
+    <P Name="VariableName">Syy_log</P>
+    <P Name="MaxDataPoints">inf</P>
+    <P Name="SaveFormat">Timeseries</P>
+    <P Name="FixptAsFi">on</P>
+    <P Name="SampleTime">-1</P>
+  </Block>
+  <Block BlockType="Math" Name="Transpose" SID="8">
+    <PortCounts in="1" out="1"/>
+    <P Name="Position">[590, 89, 630, 131]</P>
+    <P Name="ZOrder">24640</P>
+    <P Name="Operator">transpose</P>
+  </Block>
+  <Block BlockType="UnitDelay" Name="Unit Delay" SID="14">
+    <P Name="Position">[-40, 261, 5, 299]</P>
+    <P Name="ZOrder">24645</P>
+    <P Name="BlockMirror">on</P>
+    <P Name="NameLocation">top</P>
+    <P Name="InitialCondition">L_init</P>
+    <P Name="SampleTime">0.1</P>
+    <P Name="HasFrameUpgradeWarning">on</P>
+  </Block>
+  <Block BlockType="ZeroOrderHold" Name="Zero-Order&#xA;Hold" SID="9">
+    <P Name="Position">[465, 90, 505, 130]</P>
+    <P Name="ZOrder">24637</P>
+    <P Name="SampleTime">1/5120</P>
+  </Block>
+  <Line>
+    <P Name="ZOrder">1</P>
+    <P Name="Src">4#out:1</P>
+    <P Name="Dst">9#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">2</P>
+    <P Name="Src">8#out:1</P>
+    <P Name="Dst">3#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">3</P>
+    <P Name="Src">9#out:1</P>
+    <P Name="Dst">8#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">4</P>
+    <P Name="Src">3#out:1</P>
+    <P Name="Points">[115, 0]</P>
+    <P Name="Dst">5#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">5</P>
+    <P Name="Src">6#out:1</P>
+    <P Name="Dst">4#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">6</P>
+    <P Name="Src">7#out:1</P>
+    <P Name="Dst">6#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">25</P>
+    <P Name="Src">15#out:1</P>
+    <P Name="Dst">7#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">49</P>
+    <P Name="Src">10#out:1</P>
+    <P Name="Dst">14#in:1</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">33</P>
+    <P Name="Src">5#out:1</P>
+    <P Name="Points">[-129, 0]</P>
+    <Branch>
+      <P Name="ZOrder">63</P>
+      <P Name="Points">[0, 215]</P>
+      <P Name="Dst">35#in:1</P>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">62</P>
+      <P Name="Dst">10#in:2</P>
+    </Branch>
+  </Line>
+  <Line>
+    <P Name="ZOrder">32</P>
+    <P Name="Src">5#out:2</P>
+    <P Name="Dst">10#in:4</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">43</P>
+    <P Name="Src">29#out:1</P>
+    <P Name="Dst">15#in:2</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">44</P>
+    <P Name="Src">30#out:1</P>
+    <P Name="Points">[19, 0; 0, -85]</P>
+    <P Name="Dst">10#in:3</P>
+  </Line>
+  <Line>
+    <P Name="ZOrder">14</P>
+    <P Name="Src">14#out:1</P>
+    <P Name="Points">[-109, 0]</P>
+    <Branch>
+      <P Name="ZOrder">56</P>
+      <P Name="Points">[0, 88; 595, 0; 0, -133]</P>
+      <P Name="Dst">10#in:1</P>
+    </Branch>
+    <Branch>
+      <P Name="ZOrder">55</P>
+      <P Name="Points">[-1, 0]</P>
+      <P Name="Dst">33#in:1</P>
+    </Branch>
+  </Line>
+  <Line>
+    <P Name="ZOrder">48</P>
+    <P Name="Src">33#out:1</P>
+    <P Name="Points">[0, -95]</P>
+    <P Name="Dst">15#in:1</P>
+  </Line>
+</System>
