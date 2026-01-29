@@ -2,10 +2,12 @@
 % 功能：量化评估 MIMO 随机振动控制精度
 % 指标：dB误差谱、RMSE (均方根误差)、最大误差
 % 依赖：需先运行 control_model 仿真并保留工作区数据
+% 配置：1Hz分辨率 (N=5120, N_half=2561)
+
 % 提取基础数据
-Syy_data = out.Syy_log.Data;   % [513 x 2 x 2 x Time]
+Syy_data = out.Syy_log.Data;   % [2561 x 2 x 2 x Time]
 Time_vec = out.Syy_log.Time;
-Freq_vec = f;                  % [513 x 1]
+Freq_vec = f;                  % [2561 x 1]
 
 % 确定控制频段索引 (20-2000 Hz)
 idx_ctrl = find(Freq_vec >= 20 & Freq_vec <= 2000);
@@ -63,19 +65,19 @@ figure('Name', 'Control Error Spectrum', 'Color', 'w', 'Position', [200, 200, 10
 
 for ch = 1:2
     subplot(2, 1, ch);
-    
+
     % 绘制初始误差 (虚线)
     semilogx(f_ctrl, Error_init_dB(:, ch), 'b--', 'LineWidth', 1, 'DisplayName', '初始误差 (开环)');
     hold on;
-    
+
     % 绘制最终误差 (实线)
     semilogx(f_ctrl, Error_final_dB(:, ch), 'r-', 'LineWidth', 1.5, 'DisplayName', '最终误差 (闭环)');
-    
+
     % 绘制 +/- 3dB 容差带 (绿色填充或粗线)
     yline(3, 'g--', 'LineWidth', 2, 'DisplayName', '+/- 3dB 容差');
     yline(-3, 'g--', 'LineWidth', 2, 'HandleVisibility', 'off');
     yline(0, 'k-', 'LineWidth', 0.5, 'HandleVisibility', 'off'); % 0dB 基准线
-    
+
     % 图表设置
     title(sprintf('通道 %d 控制误差谱 (Control Error Spectrum - CH%d)', ch, ch), 'FontWeight', 'bold');
     ylabel('Error (dB)');
