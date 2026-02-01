@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Stateflow>
+  <machine id="29">
+    <P Name="sfVersion">82500000</P>
+    <Children>
+      <target id="77" name="sfun">
+        <P Name="description">Default Simulink S-Function Target.</P>
+      </target>
+      <chart Ref="chart_30"/>
+      <chart Ref="chart_40"/>
+      <chart Ref="chart_48"/>
+      <chart Ref="chart_56"/>
+      <chart Ref="chart_63"/>
+      <chart Ref="chart_70"/>
+    </Children>
+  </machine>
+  <instance id="39">
+    <P Name="machine">29</P>
+    <P Name="name">Controller</P>
+    <P Name="chart">30</P>
+  </instance>
+  <instance id="47">
+    <P Name="machine">29</P>
+    <P Name="name">Response_spectrum_calculation</P>
+    <P Name="chart">40</P>
+  </instance>
+  <instance id="55">
+    <P Name="machine">29</P>
+    <P Name="name">Signal_Generator</P>
+    <P Name="chart">48</P>
+  </instance>
+  <instance id="62">
+    <P Name="machine">29</P>
+    <P Name="name">Accumulator	</P>
+    <P Name="chart">56</P>
+  </instance>
+  <instance id="69">
+    <P Name="machine">29</P>
+    <P Name="name">Abaqus_function</P>
+    <P Name="chart">63</P>
+  </instance>
+  <instance id="76">
+    <P Name="machine">29</P>
+    <P Name="name">Dispatcher_y</P>
+    <P Name="chart">70</P>
+  </instance>
+</Stateflow>

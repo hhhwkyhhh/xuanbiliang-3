@@ -26,27 +26,30 @@
       <P Name="decomposition">CLUSTER_STATE</P>
       <eml>
         <P Name="isEML">1</P>
-        <P Name="script">function [Suu, Syu,Syy, f] = SpectralEstimation(u, y)
+        <P Name="script">function [Suu, Syu, Syy, f] = SpectralEstimation(u, y)
 % SpectralEstimation 计算MIMO系统的瞬时自功率谱和互功率谱
+% 配置：1Hz分辨率 (N=5120, N_half=2561)
 % 
 % 输入:
-%   u: 激励力信号 [1024 x 2] (时域)
-%   y: 加速度响应信号 [1024 x 2] (时域)
+%   u: 激励力信号 [5120 x 2] (时域)
+%   y: 加速度响应信号 [5120 x 2] (时域)
 %
 % 输出:
-%   Suu: 激励力的自功率谱矩阵 [513 x 2 x 2] (频域)
-%   Syu: 响应与激励的互功率谱矩阵 [513 x 2 x 2] (频域)
-%   f:   频率向量 [513 x 1]
+%   Suu: 激励力的自功率谱矩阵 [2561 x 2 x 2] (频域)
+%   Syu: 响应与激励的互功率谱矩阵 [2561 x 2 x 2] (频域)
+%   f:   频率向量 [2561 x 1]
 
     % %% 1. 参数定义
     Fs = 5120;          % 采样频率 (Hz)
-    N = 5120;           % FFT点数 (等于Buffer大小)
-    N_half = N/2 + 1;   % 单边谱的谱线数 (513)
+    N = 5120;           % FFT点数 (1Hz分辨率)
+    N_half = N/2 + 1;   % 单边谱的谱线数 (2561)
     
     % %% 2. 加窗 (Hanning Window)
     % 构造汉宁窗 (1024 x 1)
     % 使用 coder.const 优化代码生成，因为窗函数是常数
-    w = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / (N-1)));
+    %w = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / (N-1)));
+    % 修改后 (周期性Hann窗)
+    w = 0.5 * (1 - cos(2 * pi * (0:N-1)&apos; / N));
     
     % 计算能量恢复系数 (Energy Correction Factor for PSD)
     % 对于 PSD 估计，需要除以窗函数平方和

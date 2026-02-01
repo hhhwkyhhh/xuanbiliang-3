@@ -43,11 +43,13 @@
   </Block>
   <Line>
     <P Name="ZOrder">27</P>
+    <P Name="Labels">[0, 0]</P>
     <P Name="Src">15::1#out:1</P>
     <P Name="Dst">15::25#in:1</P>
   </Line>
   <Line>
     <P Name="ZOrder">28</P>
+    <P Name="Labels">[0, 0]</P>
     <P Name="Src">15::30#out:1</P>
     <P Name="Dst">15::25#in:2</P>
   </Line>

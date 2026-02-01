@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <System>
-  <P Name="Location">[589, 388, 1902, 1140]</P>
-  <P Name="ZoomFactor">200</P>
+  <P Name="Location">[2627, 612, 3940, 1364]</P>
+  <P Name="Open">on</P>
+  <P Name="ZoomFactor">50</P>
   <P Name="ReportName">simulink-default.rpt</P>
   <P Name="SIDHighWatermark">20</P>
   <Block BlockType="Reference" Name="Band-Limited&#xA;White Noise" SID="1">

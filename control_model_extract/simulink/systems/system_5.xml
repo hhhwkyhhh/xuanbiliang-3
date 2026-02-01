@@ -73,6 +73,7 @@
   </Line>
   <Line>
     <P Name="ZOrder">5</P>
+    <P Name="Labels">[0, 0]</P>
     <P Name="Src">5::1#out:1</P>
     <P Name="Points">[60, 0; 0, 30]</P>
     <P Name="Dst">5::25#in:1</P>
