@@ -18,7 +18,7 @@ Time_data = out.Syy_log.Time;
 % 提取 "修正前" 的结果 (Initial Response)
 % 取第一个控制周期后的数据 (避开 t=0 的瞬态)
 % 控制周期约15s (30帧 × 0.5s)，所以取 t=20s 附近的值
-idx_before = find(Time_data >= 55, 1);
+idx_before = find(Time_data >= 30, 1);
 if isempty(idx_before), idx_before = 1; end
 Syy_before = squeeze(Syy_data(:, :, :, idx_before));
 
